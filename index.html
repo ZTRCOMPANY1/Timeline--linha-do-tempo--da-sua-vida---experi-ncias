@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Timeline — Julio César</title>
+  <meta name="description" content="Linha do tempo interativa e responsiva - portfólio / vida / experiências." />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#060607;
+      --card:#0f1113;
+      --muted:#9aa3b2;
+      --accent:#6d28d9; /* indigo-600 */
+      --glass: rgba(255,255,255,0.03);
+      --radius:14px;
+      --gap:24px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;
+      background:linear-gradient(180deg,#040405 0%, var(--bg) 100%);
+      color:#e6eef8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      padding-bottom:64px;
+    }
+
+    header{
+      position:sticky;
+      top:0;
+      z-index:40;
+      backdrop-filter: blur(6px);
+      background: linear-gradient(180deg, rgba(10,10,12,0.65), rgba(8,8,10,0.55));
+      border-bottom:1px solid rgba(255,255,255,0.03);
+    }
+    .container{
+      max-width:1100px;
+      margin:0 auto;
+      padding:18px 20px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+    .logo{
+      width:48px;height:48px;border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),#ec4899 120%);
+      display:flex;align-items:center;justify-content:center;font-weight:700;
+      color:white;font-size:16px;box-shadow:0 6px 20px rgba(109,40,217,0.18);
+    }
+    nav a{color:var(--muted);text-decoration:none;margin-left:14px;font-weight:600;font-size:14px}
+    nav a:hover{color:#fff}
+
+    /* Hero */
+    .hero{
+      max-width:1100px;margin:28px auto 4px;padding:20px;
+      display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;
+    }
+    .hero .intro{
+      padding:24px;background:linear-gradient(180deg,var(--glass), transparent);
+      border-radius:var(--radius); border:1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+    }
+    .intro h1{font-size:28px;margin:0 0 8px}
+    .intro p{margin:0;color:var(--muted)}
+    .hero .controls{display:flex;flex-direction:column;gap:12px;padding-left:8px}
+    .btn{
+      background:linear-gradient(90deg,var(--accent),#ec4899);
+      padding:10px 14px;border-radius:12px;border:none;color:white;font-weight:700;cursor:pointer;
+      box-shadow:0 8px 18px rgba(109,40,217,0.18);
+    }
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);box-shadow:none}
+
+    /* Timeline layout */
+    main{max-width:1100px;margin:18px auto;padding:8px 20px}
+    .timeline{
+      position:relative;
+      margin-top:18px;
+      padding:28px 0;
+    }
+    /* vertical line */
+    .timeline::before{
+      content:"";
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      width:4px;
+      height:100%;
+      background:linear-gradient(180deg,var(--glass), rgba(255,255,255,0.02));
+      border-radius:4px;
+    }
+
+    .item{
+      position:relative;
+      width:calc(50% - var(--gap));
+      padding:18px;
+      background:linear-gradient(180deg,var(--card), rgba(255,255,255,0.02));
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,0.03);
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      margin:20px 0;
+      opacity:0;
+      transform:translateY(30px) scale(0.98);
+      transition:all 520ms cubic-bezier(.2,.9,.25,1);
+    }
+
+    .item.show{opacity:1; transform:translateY(0) scale(1)}
+
+    /* side placement */
+    .item.left{left:0;margin-right:calc(var(--gap) + 4px)}
+    .item.right{left:50%;transform-origin:left center;margin-left:calc(var(--gap) + 4px)}
+
+    /* pointer circle */
+    .item::after{
+      content:"";
+      position:absolute;
+      top:18px;
+      width:14px;height:14px;border-radius:50%;
+      background:linear-gradient(180deg,#fff,var(--accent));
+      box-shadow:0 6px 18px rgba(109,40,217,0.12);
+      border:3px solid var(--bg);
+    }
+    .item.left::after{right:-40px}
+    .item.right::after{left:-40px}
+
+    .meta{
+      display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13px;margin-bottom:8px;
+    }
+    .title{font-size:18px;font-weight:700;margin-bottom:6px}
+    .desc{color:var(--muted);font-size:14px;margin-bottom:12px}
+    .tags{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{background:rgba(255,255,255,0.03);padding:6px 8px;border-radius:999px;font-size:12px;color:var(--muted)}
+
+    /* small screens: single column */
+    @media (max-width:880px){
+      .hero{grid-template-columns:1fr;gap:12px}
+      .timeline::before{left:10px;transform:none;width:3px}
+      .item{width:calc(100% - 64px); margin-left:48px}
+      .item.right{left:0;margin-left:48px}
+      .item.left{left:0;margin-right:0}
+      .item::after{left:8px;right:auto;top:24px}
+    }
+
+    /* pref: reduce motion */
+    @media (prefers-reduced-motion: reduce){
+      .item{transition:none;transform:none;opacity:1}
+    }
+
+    footer{max-width:1100px;margin:28px auto;padding:18px 20px;color:var(--muted);font-size:13px;text-align:center}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="brand">
+        <div class="logo">JC</div>
+        <div>
+          <div style="font-weight:700">Julio César</div>
+          <div style="font-size:13px;color:var(--muted)">Portfólio • Timeline</div>
+        </div>
+      </div>
+
+      <nav aria-label="Navegação principal">
+        <a href="#timeline" id="nav-tl">Timeline</a>
+        <a href="#about" style="margin-left:12px">Sobre</a>
+        <a href="#contact" style="margin-left:12px">Contato</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="intro">
+        <h1 id="hero-title">Linha do tempo — experiências e marcos</h1>
+        <p>Role para baixo e veja sua história aparecer. Cada cartão representa um marco (estudo, trabalho, projeto, prêmio).</p>
+        <div style="margin-top:12px;color:var(--muted);font-size:13px">Dica: abra em tela cheia para uma melhor experiência.</div>
+      </div>
+
+      <div class="controls" aria-hidden="true">
+        <button class="btn" id="btn-add">Adicionar evento</button>
+        <button class="btn ghost" id="btn-reset">Restaurar exemplo</button>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section id="timeline" class="timeline" aria-label="Linha do tempo cronológica">
+      <!-- Items serão inseridos via JS para facilitar edição -->
+    </section>
+
+    <section id="about" style="margin-top:36px;padding:20px;background:transparent;border-radius:10px">
+      <h2 style="margin-bottom:6px">Sobre esta Timeline</h2>
+      <p style="color:var(--muted);max-width:880px">Este componente é feito em HTML5 puro. Você pode editar os eventos diretamente no código JavaScript (array `EVENTS`) ou usar o botão “Adicionar evento” para inserir entradas temporárias no navegador.</p>
+    </section>
+
+    <section id="contact" style="margin-top:18px;padding:20px">
+      <h3>Contato</h3>
+      <p style="color:var(--muted)">Email: <strong style="color:#fff">seu-email@exemplo.com</strong></p>
+    </section>
+  </main>
+
+  <footer>© <span id="year"></span> — Julio César • Linha do tempo em HTML5</footer>
+
+  <script>
+    // ======= Dados iniciais (edite conforme quiser) =======
+    const EVENTS = [
+      { date: '2006', title: 'Nascimento', place: 'Cidade natal', desc: 'Nasci e comecei a jornada.', tags:['Família'] },
+      { date: '2018', title: 'Início em programação', place: 'Estudo autodidata', desc: 'Aprendi HTML, CSS e meus primeiros scripts em JS.', tags:['HTML','CSS','JavaScript'] },
+      { date: '2020', title: 'Primeiro projeto freelance', place: 'Remoto', desc: 'Website institucional para um pequeno negócio.', tags:['Freelance','Web'] },
+      { date: '2022', title: 'Criação de jogos', place: 'Projetos pessoais', desc: 'Desenvolvi jogos para web e mobile.', tags:['Games','Unity','Blender'] },
+      { date: '2024', title: 'Estágio/Trabalho', place: 'Empresa X', desc: 'Atuei em atendimento e desenvolvimento de features.', tags:['Trabalho','Equipe'] },
+      { date: '2025', title: 'Portfólio atualizado', place: 'Online', desc: 'Lançamento desta versão do portfólio com timeline interativa.', tags:['Portfólio','Front-end'] }
+    ];
+
+    // ======= Utilitários DOM =======
+    const timeline = document.querySelector('.timeline');
+    const yearNode = document.getElementById('year');
+    yearNode.textContent = new Date().getFullYear();
+
+    function clearTimeline(){
+      timeline.innerHTML = '';
+    }
+
+    function createItem(event, idx){
+      const el = document.createElement('article');
+      el.className = 'item ' + ((idx % 2 === 0) ? 'left' : 'right');
+      el.setAttribute('tabindex','0');
+      el.innerHTML = `
+        <div class="meta">
+          <div style="font-weight:700">${event.date}</div>
+          <div style="opacity:0.6">•</div>
+          <div>${event.place || ''}</div>
+        </div>
+        <div class="title">${escapeHtml(event.title)}</div>
+        <div class="desc">${escapeHtml(event.desc)}</div>
+        <div class="tags">${(event.tags||[]).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      `;
+      return el;
+    }
+
+    // ======= Renderiza timeline =======
+    function render(events){
+      clearTimeline();
+      // order by date string (simple) — for more robust, parse years
+      const sorted = events.slice().sort((a,b) => (''+a.date).localeCompare(''+b.date, undefined, {numeric:true}));
+      sorted.forEach((ev, i)=> {
+        const item = createItem(ev, i);
+        timeline.appendChild(item);
+      });
+      attachObserver();
+    }
+
+    // ======= Intersection Observer para animação =======
+    let io = null;
+    function attachObserver(){
+      if(io) io.disconnect();
+      const items = document.querySelectorAll('.item');
+      io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting){
+            entry.target.classList.add('show');
+          }
+        });
+      }, {threshold:0.18});
+      items.forEach(it => io.observe(it));
+    }
+
+    // ======= Helpers =======
+    function escapeHtml(s){
+      return (s||'').toString()
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    // ======= Interações: adicionar evento simples (apenas no cliente) =======
+    document.getElementById('btn-add').addEventListener('click', ()=> {
+      const d = prompt('Ano / data do evento (ex: 2026):','2026');
+      if(!d) return;
+      const t = prompt('Título do evento:','Novo marco importante');
+      if(!t) return;
+      const p = prompt('Local / empresa (opcional):','');
+      const desc = prompt('Pequena descrição:','Descrição do evento.');
+      const tags = prompt('Tags separadas por vírgula (ex: Frontend,Projeto):','Projeto').split(',').map(s => s.trim()).filter(Boolean);
+      EVENTS.push({date:d, title:t, place:p, desc:desc, tags:tags});
+      render(EVENTS);
+      // scroll até o final para ver o novo item
+      setTimeout(()=> window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}), 200);
+    });
+
+    document.getElementById('btn-reset').addEventListener('click', ()=> {
+      // repõe o array exemplo
+      while(EVENTS.length) EVENTS.pop();
+      const sample = [
+        { date: '2006', title: 'Nascimento', place: 'Cidade natal', desc: 'Nasci e comecei a jornada.', tags:['Família'] },
+        { date: '2018', title: 'Início em programação', place: 'Estudo autodidata', desc: 'Aprendi HTML, CSS e JS.', tags:['HTML','CSS','JS'] },
+        { date: '2020', title: 'Primeiro freelance', place: 'Remoto', desc: 'Website institucional.', tags:['Freelance'] },
+        { date: '2024', title: 'Trabalho', place: 'Empresa X', desc: 'Estágio em desenvolvimento.', tags:['Trabalho'] },
+        { date: '2025', title: 'Portfólio', place: 'Online', desc: 'Lançamento do portfólio.', tags:['Portfólio'] }
+      ];
+      sample.forEach(s => EVENTS.push(s));
+      render(EVENTS);
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+
+    // Inicializa com dados de exemplo
+    render(EVENTS);
+
+    // Acessibilidade: pule para timeline com nav
+    document.getElementById('nav-tl').addEventListener('click', (e)=> {
+      e.preventDefault();
+      document.getElementById('timeline').scrollIntoView({behavior:'smooth', block:'start'});
+    });
+
+    // Pequena melhoria: se preferir teclado, aperte 'n' para ir para o próximo evento
+    let lastIndex = -1;
+    window.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase() === 'n'){
+        const items = Array.from(document.querySelectorAll('.item'));
+        lastIndex = Math.min(items.length-1, lastIndex+1);
+        if(items[lastIndex]) items[lastIndex].focus();
+      }
+      if(e.key.toLowerCase() === 'p'){ // anterior
+        const items = Array.from(document.querySelectorAll('.item'));
+        lastIndex = Math.max(0, lastIndex-1);
+        if(items[lastIndex]) items[lastIndex].focus();
+      }
+    });
+  </script>
+</body>
+</html>
